@@ -1,0 +1,25 @@
+# 轨迹执行配置
+# 定义轨迹执行的参数
+
+/**:
+  ros__parameters:
+    moveit_controller_manager: moveit_simple_controller_manager/MoveItSimpleControllerManager
+    moveit_simple_controller_manager:
+      controller_names:
+        - my_arm_trajectory_controller
+      controller_list:
+        my_arm_trajectory_controller:
+          type: FollowJointTrajectory
+          action_ns: follow_joint_trajectory
+          default: true
+          joints:
+            - base_joint
+            - joint_1
+            - joint_2
+            - joint_3
+            - joint_4
+
+    trajectory_execution:
+      allowed_execution_duration_scaling: 1.2
+      allowed_goal_duration_margin: 0.5
+      allowed_start_tolerance: 0.01

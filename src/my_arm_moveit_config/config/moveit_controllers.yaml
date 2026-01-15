@@ -1,0 +1,7 @@
+# MoveIt 控制器配置
+# 注意：控制器配置主要在 trajectory_execution.yaml 中定义
+# 此文件仅用于兼容性
+
+/**:
+  ros__parameters:
+    controller_manager_ns: controller_manager

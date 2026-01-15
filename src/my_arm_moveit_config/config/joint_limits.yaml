@@ -1,0 +1,56 @@
+# 关节限制配置
+# 定义每个关节的位置、速度和加速度限制
+
+/**:
+  ros__parameters:
+    joint_limits:
+      base_joint:
+        has_position_limits: true
+        min_position: -3.14159
+        max_position: 3.14159
+        has_velocity_limits: true
+        max_velocity: 3.14
+        has_acceleration_limits: true
+        max_acceleration: 1.57
+        has_jerk_limits: false
+        max_jerk: 0.0
+      joint_1:
+        has_position_limits: true
+        min_position: -3.14159
+        max_position: 3.14159
+        has_velocity_limits: true
+        max_velocity: 3.14
+        has_acceleration_limits: true
+        max_acceleration: 1.57
+        has_jerk_limits: false
+        max_jerk: 0.0
+      joint_2:
+        has_position_limits: true
+        min_position: -3.14159
+        max_position: 3.14159
+        has_velocity_limits: true
+        max_velocity: 3.14
+        has_acceleration_limits: true
+        max_acceleration: 1.57
+        has_jerk_limits: false
+        max_jerk: 0.0
+      joint_3:
+        has_position_limits: true
+        min_position: -3.14159
+        max_position: 3.14159
+        has_velocity_limits: true
+        max_velocity: 3.14
+        has_acceleration_limits: true
+        max_acceleration: 1.57
+        has_jerk_limits: false
+        max_jerk: 0.0
+      joint_4:
+        has_position_limits: true
+        min_position: -3.14159
+        max_position: 3.14159
+        has_velocity_limits: true
+        max_velocity: 3.14
+        has_acceleration_limits: true
+        max_acceleration: 1.57
+        has_jerk_limits: false
+        max_jerk: 0.0

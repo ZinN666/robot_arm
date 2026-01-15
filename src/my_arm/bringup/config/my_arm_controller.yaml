@@ -14,6 +14,10 @@ controller_manager:
     my_arm_controller:
       type: my_arm/RobotController
 
+    # MoveIt 轨迹控制器：用于执行 MoveIt 生成的轨迹
+    my_arm_trajectory_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
 # 前向位置控制器配置
 forward_position_controller:
   ros__parameters:
@@ -44,3 +48,21 @@ my_arm_controller:
     state_interfaces:
       - position
       - velocity
+
+# MoveIt 轨迹控制器配置
+my_arm_trajectory_controller:
+  ros__parameters:
+    joints:
+      - base_joint
+      - joint_1
+      - joint_2
+      - joint_3
+      - joint_4
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
+    state_publish_rate: 50.0
+    action_monitor_rate: 20.0
+    allow_partial_joints_goal: false

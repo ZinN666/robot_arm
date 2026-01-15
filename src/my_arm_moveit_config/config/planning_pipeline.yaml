@@ -1,0 +1,91 @@
+# 规划管道配置
+# 定义运动规划器
+
+/**:
+  ros__parameters:
+    planning_pipelines:
+      ompl:
+        planning_plugin: ompl_interface/OMPLPlanner
+        request_adapters: >-
+          default_planner_request_adapters/AddTimeOptimalParameterization
+          default_planner_request_adapters/FixWorkspaceBounds
+          default_planner_request_adapters/FixStartStateBounds
+          default_planner_request_adapters/FixStartStateCollision
+          default_planner_request_adapters/FixStartStatePathConstraints
+        response_adapters: >-
+          default_planner_response_adapters/AddTimeOptimalParameterization
+          default_planner_response_adapters/ValidateSolution
+        planning_plugin_config:
+          planner_configs:
+            RRTConnect:
+              type: geometric::RRTConnect
+              range: 0.0
+            RRT:
+              type: geometric::RRT
+              range: 0.0
+            RRTStar:
+              type: geometric::RRTStar
+              range: 0.0
+            LazyPRM:
+              type: geometric::LazyPRM
+              range: 0.0
+            LazyPRMstar:
+              type: geometric::LazyPRMstar
+              range: 0.0
+            PRM:
+              type: geometric::PRM
+              range: 0.0
+            PRMstar:
+              type: geometric::PRMstar
+              range: 0.0
+            FMT:
+              type: geometric::FMT
+              num_samples: 1000
+              radius_multiplier: 1.1
+              nearest_k: 1
+            BFMT:
+              type: geometric::BFMT
+              num_samples: 1000
+              radius_multiplier: 1.1
+              balanced: 0
+              heuristics: 0
+              nearest_k: 1
+            PDST:
+              type: geometric::PDST
+            STRIDE:
+              type: geometric::STRIDE
+              range: 0.0
+              use_projected_distance: 0
+              degree: 16
+              max_degree: 16
+              min_degree: 12
+              max_pts_per_leaf: 6
+              min_pts_per_leaf: 2
+              min_leaf_size: 0.01
+              max_leaf_size: 0.1
+              estimated_frac: 0.1
+              min_valid_path_fraction: 0.2
+            BiTRRT:
+              type: geometric::BiTRRT
+              range: 0.0
+            LBTRRT:
+              type: geometric::LBTRRT
+              range: 0.0
+            BiEST:
+              type: geometric::BiEST
+            ProjEST:
+              type: geometric::ProjEST
+            LBKPIECE1:
+              type: geometric::LBKPIECE1
+            BKPIECE1:
+              type: geometric::BKPIECE1
+            KPIECE1:
+              type: geometric::KPIECE1
+            RRTXstatic:
+              type: geometric::RRTXstatic
+            InformedRRTstar:
+              type: geometric::InformedRRTstar
+              range: 0.0
+            BITstar:
+              type: geometric::BITstar
+              stop_on_solution: true
