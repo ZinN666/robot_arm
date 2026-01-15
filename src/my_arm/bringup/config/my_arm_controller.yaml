@@ -1,0 +1,46 @@
+controller_manager:
+  ros__parameters:
+    update_rate: 10  # 更新频率：10 Hz
+
+    # 关节状态广播器：发布关节状态到 /joint_states
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+    # 前向位置控制器：将 topic 命令转发到硬件接口（用于 GUI 控制）
+    forward_position_controller:
+      type: forward_command_controller/ForwardCommandController
+
+    # 自定义轨迹控制器：执行关节轨迹跟踪
+    my_arm_controller:
+      type: my_arm/RobotController
+
+# 前向位置控制器配置
+forward_position_controller:
+  ros__parameters:
+    joints:
+      - base_joint
+      - joint_1
+      - joint_2
+      - joint_3
+      - joint_4
+    interface_name: position  # 使用位置接口
+
+# 自定义控制器配置
+my_arm_controller:
+  ros__parameters:
+    joints:
+      - base_joint
+      - joint_1
+      - joint_2
+      - joint_3
+      - joint_4
+
+    # 命令接口类型
+    command_interfaces:
+      - position
+      - velocity
+
+    # 状态接口类型
+    state_interfaces:
+      - position
+      - velocity

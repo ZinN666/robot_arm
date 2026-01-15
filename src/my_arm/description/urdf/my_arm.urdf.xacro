@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://wiki.ros.org/xacro" name="my_arm">
+
+  <!-- 导入 my_arm 几何描述宏 -->
+  <xacro:include filename="$(find my_arm_description)/my_arm/urdf/my_arm_description.urdf.xacro"/>
+
+  <!-- 定义关节初始角度参数（单位：弧度）
+       可以在这里修改每个关节的初始角度，例如：
+       <xacro:property name="joint_1_initial_angle" value="${pi/4}"/> 表示45度 -->
+  <xacro:property name="base_joint_initial_angle" value="0"/>
+  <xacro:property name="joint_1_initial_angle" value="1.57"/>
+  <xacro:property name="joint_2_initial_angle" value="-1.57"/>
+  <xacro:property name="joint_3_initial_angle" value="0"/>
+  <xacro:property name="joint_4_initial_angle" value="0"/>
+
+  <xacro:my_arm_description/>
+
+  <!-- 导入 my_arm ros2_control 控制描述 -->
+  <xacro:include filename="$(find my_arm)/ros2_control/my_arm.ros2_control.xacro" />
+  <xacro:my_arm_ros2_control 
+    name="my_arm"
+    base_joint_initial_angle="${base_joint_initial_angle}"
+    joint_1_initial_angle="${joint_1_initial_angle}"
+    joint_2_initial_angle="${joint_2_initial_angle}"
+    joint_3_initial_angle="${joint_3_initial_angle}"
+    joint_4_initial_angle="${joint_4_initial_angle}"/>
+
+</robot>
+

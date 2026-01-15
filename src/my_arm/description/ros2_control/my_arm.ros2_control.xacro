@@ -1,0 +1,117 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:macro name="my_arm_ros2_control" params="name base_joint_initial_angle:=0 joint_1_initial_angle:=0 joint_2_initial_angle:=0 joint_3_initial_angle:=0 joint_4_initial_angle:=0">
+
+    <ros2_control name="${name}" type="system">
+
+      <hardware>
+        <!-- 硬件插件：指定使用 my_arm/RobotSystem 硬件接口 -->
+        <plugin>my_arm/RobotSystem</plugin>
+      </hardware>
+
+      <!-- 基座关节的接口配置（可旋转） -->
+      <joint name="base_joint">
+        <!-- 命令接口：位置控制 -->
+        <command_interface name="position">
+          <param name="min">${-pi}</param>
+          <param name="max">${pi}</param>
+        </command_interface>
+        <!-- 命令接口：速度控制 -->
+        <command_interface name="velocity">
+          <param name="min">-3.14</param>
+          <param name="max">3.14</param>
+        </command_interface>
+        <!-- 状态接口：位置反馈 -->
+        <state_interface name="position">
+          <param name="initial_value">${base_joint_initial_angle}</param>
+        </state_interface>
+        <!-- 状态接口：速度反馈 -->
+        <state_interface name="velocity"/>
+      </joint>
+
+      <!-- 关节 1 的接口配置 -->
+      <joint name="joint_1">
+        <!-- 命令接口：位置控制 -->
+        <command_interface name="position">
+          <param name="min">${-pi}</param>
+          <param name="max">${pi}</param>
+        </command_interface>
+        <!-- 命令接口：速度控制 -->
+        <command_interface name="velocity">
+          <param name="min">-3.14</param>
+          <param name="max">3.14</param>
+        </command_interface>
+        <!-- 状态接口：位置反馈 -->
+        <state_interface name="position">
+          <param name="initial_value">${joint_1_initial_angle}</param>
+        </state_interface>
+        <!-- 状态接口：速度反馈 -->
+        <state_interface name="velocity"/>
+      </joint>
+
+      <!-- 关节 2 的接口配置 -->
+      <joint name="joint_2">
+        <!-- 命令接口：位置控制 -->
+        <command_interface name="position">
+          <param name="min">${-pi}</param>
+          <param name="max">${pi}</param>
+        </command_interface>
+        <!-- 命令接口：速度控制 -->
+        <command_interface name="velocity">
+          <param name="min">-3.14</param>
+          <param name="max">3.14</param>
+        </command_interface>
+        <!-- 状态接口：位置反馈 -->
+        <state_interface name="position">
+          <param name="initial_value">${joint_2_initial_angle}</param>
+        </state_interface>
+        <!-- 状态接口：速度反馈 -->
+        <state_interface name="velocity"/>
+      </joint>
+
+      <!-- 关节 3 的接口配置 -->
+      <joint name="joint_3">
+        <!-- 命令接口：位置控制 -->
+        <command_interface name="position">
+          <param name="min">${-pi}</param>
+          <param name="max">${pi}</param>
+        </command_interface>
+        <!-- 命令接口：速度控制 -->
+        <command_interface name="velocity">
+          <param name="min">-3.14</param>
+          <param name="max">3.14</param>
+        </command_interface>
+        <!-- 状态接口：位置反馈 -->
+        <state_interface name="position">
+          <param name="initial_value">${joint_3_initial_angle}</param>
+        </state_interface>
+        <!-- 状态接口：速度反馈 -->
+        <state_interface name="velocity"/>
+      </joint>
+
+      <!-- 关节 4 的接口配置 -->
+      <joint name="joint_4">
+        <!-- 命令接口：位置控制 -->
+        <command_interface name="position">
+          <param name="min">${-pi}</param>
+          <param name="max">${pi}</param>
+        </command_interface>
+        <!-- 命令接口：速度控制 -->
+        <command_interface name="velocity">
+          <param name="min">-3.14</param>
+          <param name="max">3.14</param>
+        </command_interface>
+        <!-- 状态接口：位置反馈 -->
+        <state_interface name="position">
+          <param name="initial_value">${joint_4_initial_angle}</param>
+        </state_interface>
+        <!-- 状态接口：速度反馈 -->
+        <state_interface name="velocity"/>
+      </joint>
+
+    </ros2_control>
+
+  </xacro:macro>
+
+</robot>

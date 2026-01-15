@@ -1,0 +1,228 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://wiki.ros.org/xacro">
+
+  <!-- 
+    标准关节模块宏
+    创建一个关节，包含：
+    - 关节主体：直径 20mm、高度 20mm 的圆柱（半径=0.01m，高度=0.02m）（白色）
+    - 两个连接杆：直径 10mm 的圆柱，可调长度（白色）
+    
+    参数：
+    - link_name: 链接名称
+    - joint_name: 关节名称
+    - parent_link: 父链接名称
+    - rod1_length: 向上连杆长度（默认0.1m）
+    - rod2_length: 向前连杆长度（默认0.1m）
+    - parent_connect_to: 父链接的连接点，"rod1"（向上连杆末端）或 "rod2"（向前连杆末端），默认"rod1"
+    - parent_rod_length: 父链接的连接连杆长度（用于计算连接点位置），默认0.1m
+    - connect_from: 当前关节的连接点，"rod1"（从向上连杆末端连接）或 "rod2"（从向前连杆末端连接），默认"rod1"
+    - connect_rod_length: 当前关节的连接连杆长度（用于计算连接点位置），默认0.1m
+  -->
+  <xacro:macro name="joint_module" params="link_name joint_name parent_link rod1_length:=0.1 rod2_length:=0.1 parent_connect_to:=rod1 parent_rod_length:=0.1 connect_from:=rod1 connect_rod_length:=0.1">
+    <!-- 
+      关节主体：圆柱直径=20mm（半径=0.01m），高度=20mm（0.02m）
+      两个连接杆：圆柱直径=10mm（半径=0.005m）
+    -->
+    <link name="${link_name}">
+      <!-- 视觉：关节主体（圆柱） -->
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <cylinder radius="0.01" length="0.02"/>
+        </geometry>
+        <material name="white">
+          <color rgba="1.0 1.0 1.0 1.0"/>
+        </material>
+      </visual>
+      
+      <!-- 视觉：第一个连接杆（圆柱）- 向上 -->
+      <visual>
+        <origin xyz="0 0 ${rod1_length/2}" rpy="0 0 0"/>
+        <geometry>
+          <cylinder radius="0.005" length="${rod1_length}"/>
+        </geometry>
+        <material name="white">
+          <color rgba="1.0 1.0 1.0 1.0"/>
+        </material>
+      </visual>
+      
+      <!-- 视觉：第二个连接杆（圆柱）- 向前/向外 -->
+      <visual>
+        <origin xyz="${rod2_length/2} 0 0" rpy="0 ${pi/2} 0"/>
+        <geometry>
+          <cylinder radius="0.005" length="${rod2_length}"/>
+        </geometry>
+        <material name="white">
+          <color rgba="1.0 1.0 1.0 1.0"/>
+        </material>
+      </visual>
+      
+      <!-- 碰撞：关节主体（圆柱） -->
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <cylinder radius="0.01" length="0.02"/>
+        </geometry>
+      </collision>
+      
+      <!-- 碰撞：第一个连接杆 -->
+      <collision>
+        <origin xyz="0 0 ${rod1_length/2}" rpy="0 0 0"/>
+        <geometry>
+          <cylinder radius="0.005" length="${rod1_length}"/>
+        </geometry>
+      </collision>
+      
+      <!-- 碰撞：第二个连接杆 -->
+      <collision>
+        <origin xyz="${rod2_length/2} 0 0" rpy="0 ${pi/2} 0"/>
+        <geometry>
+          <cylinder radius="0.005" length="${rod2_length}"/>
+        </geometry>
+      </collision>
+      
+      <!-- 惯性属性 -->
+      <inertial>
+        <!-- 圆柱质量：π * r² * h * 8000 = π * (0.01)² * 0.02 * 8000 ≈ 0.0503 kg -->
+        <!-- 连杆1质量：π * (0.005)² * rod1_length * 8000 -->
+        <!-- 连杆2质量：π * (0.005)² * rod2_length * 8000 -->
+        <mass value="${0.0503 + 3.14159 * 0.005 * 0.005 * (rod1_length + rod2_length) * 8000}"/>
+        <inertia ixx="0.001" ixy="0.0" ixz="0.0" 
+                 iyy="0.001" iyz="0.0" 
+                 izz="0.001"/>
+      </inertial>
+    </link>
+    
+    <!-- 旋转关节，连接到父链接 -->
+    <joint name="${joint_name}" type="revolute">
+      <parent link="${parent_link}"/>
+      <child link="${link_name}"/>
+      <!-- 
+        连接点选择（相对于父链接的坐标系）：
+        
+        连杆定义：
+        - rod1: 从圆柱底面/顶面向上的连杆（Z方向）
+        - rod2: 从圆柱侧面延伸的连杆（X方向）
+        
+        连接方式（确保两个连杆共线）：
+        - 11: 父rod1（Z方向）-> 子rod1（Z方向），子关节Z轴与父关节Z轴对齐
+        - 12: 父rod1（Z方向）-> 子rod2（X方向），子关节X轴与父关节Z轴对齐（绕Y轴旋转-90度）
+        - 21: 父rod2（X方向）-> 子rod1（Z方向），子关节Z轴与父关节X轴对齐（绕Y轴旋转90度）
+        - 22: 父rod2（X方向）-> 子rod2（X方向），子关节X轴与父关节X轴对齐
+        
+        父链接的连接点（在父链接坐标系中）：
+        - parent_connect_to="rod1": (0, 0, parent_rod_length)
+        - parent_connect_to="rod2": (parent_rod_length, 0, 0)
+        
+        当前关节的连接点（在当前 link 坐标系中）：
+        - connect_from="rod1": (0, 0, connect_rod_length)
+        - connect_from="rod2": (connect_rod_length, 0, 0)
+        
+        joint 的 origin 是 child link 坐标系原点在 parent link 坐标系中的位置和方向
+      -->
+      <xacro:if value="${parent_connect_to == 'rod1' and connect_from == 'rod1'}">
+        <!-- 11连接：父rod1（Z方向）-> 子rod1（Z方向），共线，方向相同 -->
+        <origin xyz="0 0 ${parent_rod_length - connect_rod_length}" rpy="0 0 0"/>
+      </xacro:if>
+      <xacro:if value="${parent_connect_to == 'rod1' and connect_from == 'rod2'}">
+        <!-- 12连接：父rod1（Z方向）-> 子rod2（X方向），共线
+             父rod1末端在(0, 0, parent_rod_length)
+             子rod2起点在子关节原点，需要子X轴指向父Z轴方向
+             子关节原点应该在父rod1末端位置，然后绕Y轴旋转-90度使子X轴对齐父Z轴 -->
+        <origin xyz="0 0 ${parent_rod_length}" rpy="0 ${-pi/2} 0"/>
+      </xacro:if>
+      <xacro:if value="${parent_connect_to == 'rod2' and connect_from == 'rod1'}">
+        <!-- 21连接：父rod2（X方向）-> 子rod1（Z方向），共线
+             父rod2末端在(parent_rod_length, 0, 0)
+             子rod1起点在子关节原点，需要子Z轴指向父X轴方向
+             子关节原点应该在父rod2末端位置，然后绕Y轴旋转90度使子Z轴对齐父X轴 -->
+        <origin xyz="${parent_rod_length} 0 0" rpy="0 ${pi/2} 0"/>
+      </xacro:if>
+      <xacro:if value="${parent_connect_to == 'rod2' and connect_from == 'rod2'}">
+        <!-- 22连接：父rod2（X方向）-> 子rod2（X方向），共线，方向相同 -->
+        <origin xyz="${parent_rod_length - connect_rod_length} 0 0" rpy="0 0 0"/>
+      </xacro:if>
+      <axis xyz="0 0 1"/>
+      <limit effort="100.0" lower="${-pi}" upper="${pi}" velocity="3.14"/>
+    </joint>
+  </xacro:macro>
+
+  <!-- 
+    基座模块宏
+    创建基座，包含圆柱和一个向上的连杆
+    
+    参数：
+    - link_name: 链接名称
+    - rod_length: 向上连杆长度（默认0.1m）
+    - base_x: 基座X轴位置（默认0m）
+    - base_y: 基座Y轴位置（默认0m）
+    - base_z: 基座Z轴位置（默认0m，注意：实际位置会加上rod_length）
+    - base_roll: 基座绕X轴旋转角度（单位：弧度，默认0）
+    - base_pitch: 基座绕Y轴旋转角度（单位：弧度，默认0）
+    - base_yaw: 基座绕Z轴旋转角度（单位：弧度，默认0）
+  -->
+  <xacro:macro name="base_module" params="link_name rod_length:=0.1 base_x:=0 base_y:=0 base_z:=0 base_roll:=0 base_pitch:=0 base_yaw:=0">
+    <link name="${link_name}">
+      <!-- 视觉：关节主体（圆柱） -->
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <cylinder radius="0.01" length="0.02"/>
+        </geometry>
+        <material name="white">
+          <color rgba="1.0 1.0 1.0 1.0"/>
+        </material>
+      </visual>
+      
+      <!-- 视觉：向上的连杆（圆柱） -->
+      <visual>
+        <origin xyz="0 0 ${rod_length/2}" rpy="0 0 0"/>
+        <geometry>
+          <cylinder radius="0.005" length="${rod_length}"/>
+        </geometry>
+        <material name="white">
+          <color rgba="1.0 1.0 1.0 1.0"/>
+        </material>
+      </visual>
+      
+      <!-- 碰撞：关节主体（圆柱） -->
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <cylinder radius="0.01" length="0.02"/>
+        </geometry>
+      </collision>
+      
+      <!-- 碰撞：向上的连杆 -->
+      <collision>
+        <origin xyz="0 0 ${rod_length/2}" rpy="0 0 0"/>
+        <geometry>
+          <cylinder radius="0.005" length="${rod_length}"/>
+        </geometry>
+      </collision>
+      
+      <!-- 惯性属性 -->
+      <inertial>
+        <!-- 圆柱质量：π * r² * h * 8000 = π * (0.01)² * 0.02 * 8000 ≈ 0.0503 kg -->
+        <!-- 连杆质量：π * (0.005)² * rod_length * 8000 -->
+        <mass value="${0.0503 + 3.14159 * 0.005 * 0.005 * rod_length * 8000}"/>
+        <inertia ixx="0.001" ixy="0.0" ixz="0.0" 
+                 iyy="0.001" iyz="0.0" 
+                 izz="0.001"/>
+      </inertial>
+    </link>
+    
+    <!-- 旋转关节，连接到世界坐标系（基座可以旋转） -->
+    <joint name="base_joint" type="revolute">
+      <parent link="world"/>
+      <child link="${link_name}"/>
+      <!-- 基座三轴位姿：
+           - 位置：base_x, base_y, base_z + rod_length（Z轴加上连杆长度）
+           - 姿态：base_roll（绕X轴）, base_pitch（绕Y轴）, base_yaw（绕Z轴） -->
+      <origin xyz="${base_x} ${base_y} ${base_z + rod_length}" rpy="${base_roll} ${base_pitch} ${base_yaw}"/>
+      <axis xyz="0 0 1"/>
+      <limit effort="100.0" lower="${-pi}" upper="${pi}" velocity="3.14"/>
+    </joint>
+  </xacro:macro>
+
+</robot>
